@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Masxupeng1 by MASXUEPNG</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/MASXUEPNG/masxupeng1">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/MASXUEPNG/masxupeng1/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/MASXUEPNG/masxupeng1/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Masxupeng1</h1>
+          <p>python 循环优化的小技巧</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/MASXUEPNG">MASXUEPNG</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <p>学习Python有一段时间了,关于循环优化自己有一些认识,在此与大家分享之。个人总体感觉Python是一门非常优美的语言——精炼、高效和通俗易懂。编程时，大家应尽量遵守这些原则，这样写出的code才能被大家广泛分享和传阅。接下来，我将概括一些循环优化的注意事项，然后在此基础上给出一个案列分析。如有不足，欢迎大家批评指正与补充。</p>
+
+<p><strong>第一条：能少用for循环的，尽量少用for循环，应广泛采用Python内置循环函数进行遍历。</strong>主要原因在于，Python内置循环函数均采用C语言编写，而C语言则有利于提升程序运行速度。</p>
+
+<p><strong>第二条：熟知列表、集合和字典的解析表达式，同时多利用生成器表达式进行遍历。</strong>列表、集合和字典的解析表达式美观、高效、易懂，在某些场合，他们完全可以替代for循环。如果大家不太关注循环对象中的个体元素，那生成器表达式将是一个非常不错的选择，因为它更加省时与高效。</p>
+
+<p><strong>第三条：自定义函数中尽量少用global变量，多用local变量 。</strong>因为local变量在自身函数中，调用起来显得省时省力。</p>
+
+<p><strong>第四条：脚本程序中尽量给带有“.”的函数重新赋值。</strong>这个看起来比较难理解，不过从下面的例子中（对比eg2和eg1），我们会记住这个结论。</p>
+
+<p>import time</p>
+
+<p>oldlist = xrange(100000)</p>
+
+<p><strong>eg1普通for循环</strong></p>
+
+<p>t1 = time.clock()</p>
+
+<p>newlist = []</p>
+
+<p>for num in oldlist:</p>
+
+<pre><code>newlist.append(abs(num))
+</code></pre>
+
+<p>t2 = time.clock()</p>
+
+<p>print t2 - t1</p>
+
+<p><strong>eg2普通for循环 + 带有”.”函数的重新赋值</strong></p>
+
+<p>t1 = time.clock()</p>
+
+<p>newlist = []</p>
+
+<p>append = newlist.append</p>
+
+<p>for num in oldlist:</p>
+
+<pre><code>append(abs(num))
+</code></pre>
+
+<p>t2 = time.clock()</p>
+
+<p>print t2 - t1</p>
+
+<p><strong>eg3新建一个函数，把global变量转为local变量</strong></p>
+
+<p>t1 = time.clock()</p>
+
+<p>def func():</p>
+
+<pre><code>newlist = []
+
+append = newlist.append
+
+for num in oldlist:
+
+    append(abs(num))
+
+return append
+</code></pre>
+
+<p>func()</p>
+
+<p>t2 = time.clock()</p>
+
+<p>print t2 - t1</p>
+
+<p><strong>eg4 内置映射函数map来进行遍历</strong></p>
+
+<p>t1 = time.clock()</p>
+
+<p>newlist = map(lambda x: abs(x), oldlist)</p>
+
+<p>t2 = time.clock()</p>
+
+<p>print t2 - t1</p>
+
+<p><strong>eg5 列表解析表达式来进行遍历</strong></p>
+
+<p>t1 = time.clock()</p>
+
+<p>newlist = [abs(num) for num in oldlist]</p>
+
+<p>t2 = time.clock()</p>
+
+<p>print t2 - t1</p>
+
+<p><strong>eg6 生成器表达式来进行遍历</strong></p>
+
+<p>t1 = time.clock()</p>
+
+<p>newlist = (abs(num) for num in oldlist)</p>
+
+<p>t2 = time.clock()</p>
+
+<p>print t2 - t1</p>
+
+<p><strong>eg1-eg6运行时间如下</strong></p>
+
+<p>0.0173954096106</p>
+
+<p>0.0132144560415</p>
+
+<p>0.00851393015088</p>
+
+<p>0.0126621699072</p>
+
+<p>0.012650303132</p>
+
+<p>0.000517327255834</p>
+
+<p>从以上案列结果中，我们不仅可以看到普通for循环的臃长与低效，同时也注意到生成器表达式的间接和高效；此外也意识到到，在大数据统计分析时，循环优化的重要性。</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
